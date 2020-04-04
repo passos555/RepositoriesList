@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, IssueFilter } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -20,6 +20,12 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    filters: [
+      { state: 'all', label: 'Todos', active: true },
+      { state: 'open', label: 'Aberto', active: false },
+      { state: 'closed', label: 'Fechado', active: false },
+    ],
+    filterIndex: 0,
   };
 
   async componentDidMount() {
@@ -29,10 +35,9 @@ export default class Repository extends Component {
 
     const [repository, issues] = await Promise.all([
       api.get(`/repos/${repoName}`),
-      // params são query params, seria a mesma coisa que passar pela url
       api.get(`/repos/${repoName}/issues`, {
         params: {
-          state: 'open',
+          state: 'all',
           per_page: 5,
         },
       }),
@@ -45,8 +50,12 @@ export default class Repository extends Component {
     });
   }
 
+  handleFilterSelect = async (index) => {
+    await this.setState({ filterIndex: index });
+  };
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, filters, filterIndex } = this.state;
 
     if (loading) {
       return <Loading>Carregando</Loading>;
@@ -62,6 +71,18 @@ export default class Repository extends Component {
         </Owner>
 
         <IssueList>
+          <IssueFilter active={filterIndex}>
+            <strong>Issue state:</strong>
+            {filters.map((filter, index) => (
+              <button
+                key={filter.state}
+                type="button"
+                onClick={() => this.handleFilterSelect(index)}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </IssueFilter>
           {issues.map((issue) => (
             <li key={String(issue.id)}>
               <img src={issue.user.avatar_url} alt={issue.user.login} />

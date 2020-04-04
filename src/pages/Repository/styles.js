@@ -100,3 +100,19 @@ export const IssueList = styled.ul`
     }
   }
 `;
+
+export const IssueFilter = styled.div`
+  padding-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+
+  button {
+    background: #eee;
+    border: 0;
+    padding: 5px 15px;
+    margin-left: 10px;
+    border-radius: 4px;
+  }
+`;
